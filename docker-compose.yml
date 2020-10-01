@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  aptmirror:
+    build: .
+    image: aptmirr
+    volumes:
+      - /repo/mirror:/aptmirror
+      - ./mirror.list:/etc/apt/mirror.list
+
+  cent7mirror:
+    build: .
+    image: centmirr
+    volumes:
+      - /repo/mirror/centos/7/:/opt/7
+      - ./centos7_reposync.sh:/centos7_reposync.sh
+    command: ["/bin/sh", "/centos7_reposync.sh"]
+
+  cent8mirror:
+    build: .
+    image: centmirr
+    volumes:
+      - /repo/mirror/centos/8/:/opt/8
+      - ./centos8_reposync.sh:/centos8_reposync.sh
+    command: ["/bin/sh", "/centos8_reposync.sh"]
+
+  web:
+    image: httpd:2.4
+    restart: always
+    ports:
+      - 80:80
+#      - 443:443
+    volumes:
+      - /repo/aptmirror/mirror/:/usr/local/apache2/htdocs/
+#      - /repo/ssl/:/usr/local/apache2/conf/ssl/
+#      - /repo/httpd.conf:/usr/local/apache2/conf/httpd.conf:rw
+#      - /repo/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
